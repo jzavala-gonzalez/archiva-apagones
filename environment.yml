@@ -1,0 +1,32 @@
+name: archiva-apagones
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - brotli-python=1.1.0=py311ha891d26_1
+  - bzip2=1.0.8=h93a5062_5
+  - ca-certificates=2023.11.17=hf0a4a13_0
+  - certifi=2023.11.17=pyhd8ed1ab_0
+  - charset-normalizer=3.3.2=pyhd8ed1ab_0
+  - idna=3.6=pyhd8ed1ab_0
+  - libcxx=16.0.6=h4653b0c_0
+  - libexpat=2.5.0=hb7217d7_1
+  - libffi=3.4.2=h3422bc3_5
+  - libsqlite=3.44.2=h091b4b1_0
+  - libzlib=1.2.13=h53f4e23_5
+  - ncurses=6.4=h463b476_2
+  - openssl=3.2.0=h0d3ecfb_1
+  - pip=23.3.2=pyhd8ed1ab_0
+  - pysocks=1.7.1=pyha2e5f31_6
+  - python=3.11.7=hdf0ec26_0_cpython
+  - python-duckdb=0.9.2=py311hbaf5611_0
+  - python_abi=3.11=4_cp311
+  - readline=8.2=h92ec313_1
+  - requests=2.31.0=pyhd8ed1ab_0
+  - setuptools=68.2.2=pyhd8ed1ab_0
+  - tk=8.6.13=h5083fa2_1
+  - tzdata=2023c=h71feb2d_0
+  - urllib3=2.1.0=pyhd8ed1ab_0
+  - wheel=0.42.0=pyhd8ed1ab_0
+  - xz=5.2.6=h57fd34a_0
+prefix: /Users/gabriel/anaconda3/envs/archiva-apagones

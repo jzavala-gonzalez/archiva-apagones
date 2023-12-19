@@ -1,0 +1,9 @@
+name: archiva-apagones
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - python-duckdb
+  - requests
+prefix: /Users/gabriel/anaconda3/envs/archiva-apagones
