@@ -7,4 +7,4 @@ Seguir las [instrucciones](https://duckdb.org/docs/guides/import/s3_import#cloud
 AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
 DUCKDB_S3_ENDPOINT
-AWS_REGION="auto"
+AWS_DEFAULT_REGION="auto"
