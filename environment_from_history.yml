@@ -6,4 +6,5 @@ dependencies:
   - python=3.11
   - python-duckdb
   - requests
+  - python-dotenv
 prefix: /Users/gabriel/anaconda3/envs/archiva-apagones
