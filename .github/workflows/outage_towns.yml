@@ -1,0 +1,27 @@
+name: Outage - Towns
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the repository so it can read the files inside of it and do other operations
+      - name: Check out repo
+        uses: actions/checkout@v2
+      # Install python requirements
+      - name: Pip install requirements
+        run: |
+          python -m pip install -r requirements.txt
+      - name: Archive data
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            DUCKDB_S3_ENDPOINT: ${{ secrets.DUCKDB_S3_ENDPOINT }}
+            AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |-
+          python scripts/archive_outage_towns.py
