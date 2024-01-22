@@ -36,9 +36,18 @@ def download_object(s3_manager, obj_key, local_path, verbose=False):
     os.makedirs(file_directory, exist_ok=True)
     if verbose:
         print(f'Downloading {obj_key} to {local_path}')
+    if type(s3_manager).__name__ == 'TransferManager':
+        return s3_manager.download(
+            bucket='archiva-apagones',
+            key=obj_key,
+            fileobj=local_path,
+        )
+    elif type(s3_manager).__name__ == 'S3':
+        return s3_manager.download_file(
+            Bucket='archiva-apagones',
+            Key=obj_key,
+            Filename=local_path,
+        )
+    else:
+        raise Exception("Unknown S3 Manager type. Got: "+type(s3_manager).__name__)
     # s3_client.download_file('archiva-apagones', obj_key, local_path) # when using just a client
-    s3_manager.download(
-        bucket='archiva-apagones',
-        key=obj_key,
-        fileobj=local_path,
-    )

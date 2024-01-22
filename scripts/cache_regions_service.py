@@ -48,7 +48,7 @@ try:
     remote_db_exists = True
     print("Remote DB exists. Downloading now...")
     download_object(
-        s3t,
+        s3,
         db_object_key,
         local_db_path,
         verbose=True,
@@ -121,10 +121,25 @@ else:
 # print(missing_local_keys)
 
 # Download missing objects
+pending_futures = []
 start_time = time.time()
 for obj_key in missing_local_keys:
     local_path = os.path.join(local_bucket_path, obj_key)
-    download_object(s3t, obj_key, local_path, verbose=False)
+    download_future = download_object(s3t, obj_key, local_path, verbose=False)
+    pending_futures.append(download_future)
+
+## TODO: wait for all downloads to finish
+all_downloads_finished = False
+while not all_downloads_finished:
+    pending_futures = [f for f in pending_futures if not f.done()]
+    if len(pending_futures) == 0:
+        all_downloads_finished = True
+        print("All downloads finished!")
+        break
+    else:
+        print(f"{len(pending_futures)} downloads pending...")
+        time.sleep(1)
+
 end_time = time.time()
 elapsed_time = end_time - start_time
 if len(missing_local_keys) > 0:
@@ -197,11 +212,7 @@ if not table_exists:
 else:
     print(f"Appending to table {table_name}...")
     con.execute(f'''
-    create or replace table old_{table_name} as (
-        select *
-        from {table_name}
-    );
-    create or replace table new_{table_name} as (
+    create or replace table {table_name} as (
     with initial_union as (
         select *
         from {table_name}
@@ -222,12 +233,10 @@ else:
     where object_key_copy_number = 1
     order by object_key
     );
-    create or replace table {table_name} as (
-        select *
-        from new_{table_name}
-    );
     -- drop table {table_name};
     -- alter table new_{table_name} rename to {table_name};
+    drop table if exists old_{table_name};
+    drop table if exists new_{table_name};
 
     
     ''')
@@ -241,16 +250,18 @@ con.close()
 print()
 
 ## TODO: Fix. Check why is not updating the database file.
+## TODO: Bugfix S3 transfer manager.
+#           Add callback to WAIT hasta que todos los JSON terminen de descargar
 con = duckdb.connect(local_db_path)
 print(con.sql(f'select * from {table_name}'))
 con.close()
 
 # Save the database back to the cloud bucket
-# print(f"Saving database to R2 at '{db_object_key}'...")
-# s3.put_object(
-#     Bucket='archiva-apagones',
-#     Key=db_object_key,
-#     Body=open(local_db_path, 'rb'),
-# )
-# print('Done!')
+print(f"Saving database to R2 at '{db_object_key}'...")
+s3.put_object(
+    Bucket='archiva-apagones',
+    Key=db_object_key,
+    Body=open(local_db_path, 'rb'),
+)
+print('Done!')
 
