@@ -37,6 +37,9 @@ transfer_config = s3transfer.TransferConfig(
 s3t = s3transfer.create_transfer_manager(s3, transfer_config)
 
 ## Check if the database exists in the cloud bucket
+if os.path.isfile(local_db_path):
+    print("Local DB exists. Deleting just in case.")
+    os.remove(local_db_path)
 try:
     s3.head_object(
         Bucket='archiva-apagones',
@@ -50,10 +53,13 @@ try:
         local_db_path,
         verbose=True,
     )
+    if not os.path.isfile(local_db_path):
+        raise Exception("Download failed???")
 except botocore.exceptions.ClientError as e:
     if e.response['Error']['Code'] == "404":
         remote_db_exists = False
         print("Remote DB does not exist yet")
+        
     else:
         raise e
 print()
@@ -191,7 +197,11 @@ if not table_exists:
 else:
     print(f"Appending to table {table_name}...")
     con.execute(f'''
-    create or replace table {table_name} as (
+    create or replace table old_{table_name} as (
+        select *
+        from {table_name}
+    );
+    create or replace table new_{table_name} as (
     with initial_union as (
         select *
         from {table_name}
@@ -212,6 +222,12 @@ else:
     where object_key_copy_number = 1
     order by object_key
     );
+    create or replace table {table_name} as (
+        select *
+        from new_{table_name}
+    );
+    -- drop table {table_name};
+    -- alter table new_{table_name} rename to {table_name};
 
     
     ''')
@@ -220,20 +236,21 @@ print(f"Table {table_name} now has {con.execute(f'select count(*) from {table_na
 print(con.sql(f'select * from {table_name}'))
 
 print('Closing local database connection...')
+con.commit()
 con.close()
-time.sleep(5)
 print()
-
-# Save the database back to the cloud bucket
-print(f"Saving database to R2 at '{db_object_key}'...")
-s3.put_object(
-    Bucket='archiva-apagones',
-    Key=db_object_key,
-    Body=open(local_db_path, 'rb'),
-)
-print('Done!')
 
 ## TODO: Fix. Check why is not updating the database file.
 con = duckdb.connect(local_db_path)
 print(con.sql(f'select * from {table_name}'))
 con.close()
+
+# Save the database back to the cloud bucket
+# print(f"Saving database to R2 at '{db_object_key}'...")
+# s3.put_object(
+#     Bucket='archiva-apagones',
+#     Key=db_object_key,
+#     Body=open(local_db_path, 'rb'),
+# )
+# print('Done!')
+
