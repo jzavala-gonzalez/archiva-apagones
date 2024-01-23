@@ -67,7 +67,6 @@ print()
 
 ## Connect to the database
 con = duckdb.connect(local_db_path)
-# con.execute("create table if not exists tbl (i integer);")
 tables = con.sql("show tables;").fetchall()
 tables = [t[0] for t in tables]
 table_exists = table_name in tables
@@ -128,7 +127,7 @@ for obj_key in missing_local_keys:
     download_future = download_object(s3t, obj_key, local_path, verbose=False)
     pending_futures.append(download_future)
 
-## TODO: wait for all downloads to finish
+# Wait for all downloads to finish
 all_downloads_finished = False
 while not all_downloads_finished:
     pending_futures = [f for f in pending_futures if not f.done()]
@@ -233,28 +232,16 @@ else:
     where object_key_copy_number = 1
     order by object_key
     );
-    -- drop table {table_name};
-    -- alter table new_{table_name} rename to {table_name};
-    drop table if exists old_{table_name};
-    drop table if exists new_{table_name};
-
-    
     ''')
 
-print(f"Table {table_name} now has {con.execute(f'select count(*) from {table_name}').fetchone()[0]} rows")
+print(f"{table_name}:")
 print(con.sql(f'select * from {table_name}'))
+print(f"Table {table_name} now has {con.execute(f'select count(*) from {table_name}').fetchone()[0]} rows")
 
 print('Closing local database connection...')
 con.commit()
 con.close()
 print()
-
-## TODO: Fix. Check why is not updating the database file.
-## TODO: Bugfix S3 transfer manager.
-#           Add callback to WAIT hasta que todos los JSON terminen de descargar
-con = duckdb.connect(local_db_path)
-print(con.sql(f'select * from {table_name}'))
-con.close()
 
 # Save the database back to the cloud bucket
 print(f"Saving database to R2 at '{db_object_key}'...")
