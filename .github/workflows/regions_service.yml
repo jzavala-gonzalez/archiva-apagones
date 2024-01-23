@@ -25,3 +25,12 @@ jobs:
             AWS_REGION: ${{ vars.AWS_REGION }}
         run: |-
           python scripts/archive_regions_service.py
+      - name: Update cache
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            DUCKDB_S3_ENDPOINT: ${{ secrets.DUCKDB_S3_ENDPOINT }}
+            AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |-
+          python scripts/cache_regions_service.py
+      

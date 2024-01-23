@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "name": "regions_without_service_cache",
+            "accessMode": "Read Only",
+            "previewLimit": 50,
+            "driver": "DuckDB",
+            "databaseFilePath": "archiva-apagones/databases/regions_without_service_cache.db"
+        }
+    ]
+}
