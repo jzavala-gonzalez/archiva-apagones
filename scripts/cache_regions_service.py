@@ -70,6 +70,10 @@ con = duckdb.connect(local_db_path)
 tables = con.sql("show tables;").fetchall()
 tables = [t[0] for t in tables]
 table_exists = table_name in tables
+database_size_string = con.sql('call pragma_database_size();').fetchone()[1]
+# cast '1.8MB' string to float (eliminate all non-numeric characters)
+database_size = float(''.join([c for c in database_size_string if c.isdigit() or c == '.']))
+print(f"Initial database size: {database_size_string} ({database_size})")
 print("Existing tables:", tables)
 
 # Get list of all objects already cached in the database
@@ -241,6 +245,16 @@ print(f"Table {table_name} now has {con.execute(f'select count(*) from {table_na
 print('Closing local database connection...')
 # con.commit()
 con.close()
+print()
+
+con = duckdb.connect(local_db_path)
+new_database_size_string = con.sql('call pragma_database_size();').fetchone()[1]
+# cast '1.8MB' string to float (eliminate all non-numeric characters)
+new_database_size = float(''.join([c for c in new_database_size_string if c.isdigit() or c == '.']))
+size_change = new_database_size - database_size
+print(f"Initial database size: {database_size_string} ({database_size})")
+print(f"    New database size: {new_database_size_string} ({new_database_size})")
+print(f"          Size change: {size_change}")
 print()
 
 # Save the database back to the cloud bucket
