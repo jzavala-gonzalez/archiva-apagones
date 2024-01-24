@@ -239,7 +239,7 @@ print(con.sql(f'select * from {table_name}'))
 print(f"Table {table_name} now has {con.execute(f'select count(*) from {table_name}').fetchone()[0]} rows")
 
 print('Closing local database connection...')
-con.commit()
+# con.commit()
 con.close()
 print()
 
