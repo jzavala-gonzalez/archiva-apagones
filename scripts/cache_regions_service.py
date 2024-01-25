@@ -242,8 +242,17 @@ print(f"{table_name}:")
 print(con.sql(f'select * from {table_name}'))
 print(f"Table {table_name} now has {con.execute(f'select count(*) from {table_name}').fetchone()[0]} rows")
 
+# Hack: save space by exporting and reimporting database
+# see https://github.com/duckdb/duckdb/issues/8261
+print('Exporting database...')
+con.execute("export database 'regions_without_service_cache';")
 print('Closing local database connection...')
-# con.commit()
+con.close()
+
+os.remove(local_db_path)
+print('Reimporting database...')
+con = duckdb.connect(local_db_path)
+con.execute("import database 'regions_without_service_cache';")
 con.close()
 print()
 
