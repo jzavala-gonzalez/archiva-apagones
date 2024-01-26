@@ -275,10 +275,10 @@ s3.put_object(
     Key=db_object_key,
     Body=open(local_db_path, 'rb'),
 )
-# s3.put_object(
-#     Bucket='publica-apagones',
-#     Key=db_object_key,
-#     Body=open(local_db_path, 'rb'),
-# )
+s3.put_object(
+    Bucket='publica-apagones',
+    Key=db_object_key,
+    Body=open(local_db_path, 'rb'),
+)
 print('Done!')
 
