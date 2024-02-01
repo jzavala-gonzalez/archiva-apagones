@@ -158,7 +158,12 @@ con.execute(
 f'''
 create or replace TEMP table local_raw_regions_without_service as (
     select *
-    from read_json('{local_bucket_path}/regions_without_service/*/*.json', filename=true, auto_detect=true, format='auto') 
+    from read_json('{local_bucket_path}/regions_without_service/*/*.json', filename=true, format='auto',
+    columns = {{
+    regions: 'STRUCT("name" VARCHAR, percentageClientsWithService DOUBLE, percentageClientsWithoutService DOUBLE, totalClients BIGINT, totalClientsWithService BIGINT, totalClientsWithoutService BIGINT, totalClientsAffectedByPlannedOutage BIGINT)[]',
+    timestamp: 'VARCHAR',
+    totals: 'STRUCT(totalClients BIGINT, totalClientsWithService BIGINT, totalClientsWithoutService BIGINT, totalPercentageWithService DOUBLE, totalPercentageWithoutService DOUBLE, totalClientsAffectedByPlannedOutage BIGINT)'
+}}) 
 )
 ''')
 
